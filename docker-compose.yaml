@@ -45,16 +45,18 @@ services:
         max-file: "1"
 
   searxng:
-    container_name: searxng
-    image: docker.io/searxng/searxng:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
+    container_name: searxng
     networks:
       - searxng
     ports:
       - "127.0.0.1:8080:8080"
-    volumes:
-      - ./searxng:/etc/searxng:rw
     environment:
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - SECRET_KEY=${SECRET_KEY:-ultrasecretkey}
       - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}/
       - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
       - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
